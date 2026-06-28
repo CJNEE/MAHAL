@@ -61,6 +61,9 @@ class BirthdayApp {
 
         // Check if birthday has already passed on startup
         this.checkBirthdayStatus(true);
+
+        // Sync with cloud database for cross-device support
+        this.syncWithDatabase();
     }
 
     /* Storage key constants — never change these after first release */
@@ -112,13 +115,95 @@ class BirthdayApp {
         }
     }
 
-    saveConfig() {
+    async saveConfig() {
         // Save settings (everything except memories)
         const { memories, ...settingsOnly } = this.config;
         localStorage.setItem(this.SETTINGS_KEY, JSON.stringify(settingsOnly));
 
         // Save entire memories array (including default, edited, and user-added memories)
         localStorage.setItem(this.MEMORIES_KEY, JSON.stringify(this.config.memories));
+
+        // Save to cloud database (Vercel KV) in the background
+        try {
+            await Promise.all([
+                fetch('/api/db?type=settings', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(settingsOnly)
+                }),
+                fetch('/api/db?type=memories', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(this.config.memories)
+                })
+            ]);
+        } catch (e) {
+            console.error("Failed to save configuration to cloud database:", e);
+        }
+    }
+
+    async syncWithDatabase() {
+        try {
+            const [settingsRes, memoriesRes] = await Promise.all([
+                fetch('/api/db?type=settings'),
+                fetch('/api/db?type=memories')
+            ]);
+
+            if (settingsRes.ok && memoriesRes.ok) {
+                const settingsData = await settingsRes.json();
+                const memoriesData = await memoriesRes.json();
+
+                let updated = false;
+
+                if (settingsData && typeof settingsData === 'object') {
+                    const defaults = this.getDefaultConfig();
+                    let giftMsg = settingsData.giftMessage ?? defaults.giftMessage;
+                    if (giftMsg.includes("cozy stargazing walk")) {
+                        giftMsg = defaults.giftMessage;
+                    }
+                    
+                    this.config.name = settingsData.name ?? this.config.name;
+                    this.config.birthdayDate = settingsData.birthdayDate ?? this.config.birthdayDate;
+                    this.config.letterText = settingsData.letterText ?? this.config.letterText;
+                    this.config.giftMessage = giftMsg;
+                    this.config.reasons = settingsData.reasons ?? this.config.reasons;
+
+                    const { memories, ...settingsOnly } = this.config;
+                    localStorage.setItem(this.SETTINGS_KEY, JSON.stringify(settingsOnly));
+                    updated = true;
+                }
+
+                if (memoriesData && Array.isArray(memoriesData)) {
+                    this.config.memories = memoriesData;
+                    localStorage.setItem(this.MEMORIES_KEY, JSON.stringify(memoriesData));
+                    updated = true;
+                }
+
+                if (updated) {
+                    this.populateStaticContent();
+                    this.startCountdown();
+                    this.checkBirthdayStatus(false);
+                    this.reasons = null;
+                    this.renderReasonsDeck();
+                    this.renderMemories();
+                    this.renderMemoriesManager();
+                    this.resetEnvelopeState();
+                }
+            }
+        } catch (e) {
+            console.error("Failed to sync with cloud database:", e);
+        }
+    }
+
+    async deleteConfigFromDatabase() {
+        try {
+            await Promise.all([
+                fetch('/api/db?type=settings', { method: 'DELETE' }),
+                fetch('/api/db?type=memories', { method: 'DELETE' })
+            ]);
+        } catch (e) {
+            console.error("Failed to delete configuration from cloud database:", e);
+        }
     }
 
     getDefaultConfig() {
@@ -471,6 +556,9 @@ class BirthdayApp {
 
             this.resetEnvelopeState();
             this.closeSettings();
+
+            // Also clear settings from cloud database
+            this.deleteConfigFromDatabase();
         }
     }
 
