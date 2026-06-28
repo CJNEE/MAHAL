@@ -122,14 +122,24 @@ class BirthdayApp {
     }
 
     getDefaultConfig() {
-        // Default target: 7 days and 3 hours from now to make the countdown active
+        // Default target: always set to the upcoming June 28
         const now = new Date();
-        const defaultTargetDate = new Date(now.getTime() + (7 * 24 + 3) * 60 * 60 * 1000);
-
+        const currentYear = now.getFullYear();
+        let targetYear = currentYear;
         
+        // Celebration ends at the very end of June 28 (i.e. June 29 00:00:00)
+        const celebrationEnd = new Date(currentYear, 5, 29, 0, 0, 0, 0);
+        if (now >= celebrationEnd) {
+            targetYear += 1;
+        }
+        
+        const targetDate = new Date(targetYear, 5, 28, 0, 0, 0, 0);
+        const pad = (num) => String(num).padStart(2, '0');
+        const birthdayDateLocal = `${targetDate.getFullYear()}-${pad(targetDate.getMonth() + 1)}-${pad(targetDate.getDate())}T${pad(targetDate.getHours())}:${pad(targetDate.getMinutes())}`;
+
         return {
             name: "Jane",
-            birthdayDate: defaultTargetDate.toISOString().slice(0, 16), // datetime-local format
+            birthdayDate: birthdayDateLocal, // datetime-local format
             letterText: "Dearest Jane,\n\nFrom the moment you walked into my life, everything became brighter, softer, and more beautiful. You have this quiet strength, this gentle laugh, and a heart that makes me want to be the best version of myself.\n\nOn your birthday, I want to remind you of how deeply you are appreciated, how much you are loved, and how grateful I am for every single second we share. Whether we're exploring new places or just sitting together in quiet comfort, my favorite place is always by your side.\n\nHere is to your special day, and to all the adventures waiting for us in the years ahead.\n\nHappy Birthday, my love.",
             giftMessage: `You’ve unlocked a special gift 💙\n\nA gift that doesn’t come inside a box or wrapped with a ribbon, but something that comes from the deepest part of my heart. This gift is my promise to you: that I will always love you, support you, and be here for you no matter what happens.\n\nEver since the moment I met you, I felt something different. Even when there were so many people around, you were the one I noticed. You were the one I looked at, the one who stood out to me, and the one I wanted to know more about. Somehow, my eyes always found you, and without even realizing it, I started falling for you.\n\nAs time passed, my feelings for you only grew stronger. I fell in love with the way you are, the way you make me smile, the way you make ordinary moments feel special, and the happiness you bring into my life. You became someone I truly value, someone I want to protect, and someone I want to keep choosing every single day.\n\nI want you to know that this gift is not just words. This is my promise to you. I promise that I will always support you in your dreams, stand beside you during your struggles, and celebrate with you during your happiest moments. No matter how hard things get, I want you to remember that you have someone who believes in you and will always be cheering for you.\n\nWhenever you feel tired, lost, or when you need someone to talk to, I want you to know that I’ll always be here. I’ll listen to you, understand you, and remind you that you are never alone. I may not always have the perfect words or the ability to fix everything, but I will always give you my time, my effort, and my love.\n\nI love you so much, and I always will. ❤️ You are someone truly special to me, and I’m grateful for every moment, every laugh, every memory, and every second I get to spend with you.\n\nThe gift I’m giving you is me. My love, my support, my loyalty, and my promise that no matter what happens, I will always be here for you. I’ll continue to love you, care for you, and choose you again and again.\n\nThank you for being part of my life. Thank you for being the person who made my heart feel this way. I hope you always remember how loved you are, because you deserve all the love and happiness in the world. 💙`,
             reasons: [
