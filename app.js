@@ -88,7 +88,6 @@ class BirthdayApp {
                     letterText: parsed.letterText ?? defaults.letterText,
                     giftMessage: giftMsg,
                     reasons: parsed.reasons ?? defaults.reasons,
-                    // Always start with default images from code
                     memories: [...defaults.memories]
                 };
             } catch (e) {
@@ -99,14 +98,13 @@ class BirthdayApp {
             this.config = { ...defaults, memories: [...defaults.memories] };
         }
 
-        // Load user-added memories and MERGE them on top of base images
+        // Load memories (entire list if saved, otherwise falls back to defaults loaded above)
         const savedMemories = localStorage.getItem(this.MEMORIES_KEY);
         if (savedMemories) {
             try {
-                const userAdded = JSON.parse(savedMemories);
-                if (Array.isArray(userAdded) && userAdded.length > 0) {
-                    // Append user memories after base images
-                    this.config.memories = [...this.config.memories, ...userAdded];
+                const parsedMemories = JSON.parse(savedMemories);
+                if (Array.isArray(parsedMemories)) {
+                    this.config.memories = parsedMemories;
                 }
             } catch (e) {
                 console.error('Error parsing saved memories', e);
@@ -119,10 +117,8 @@ class BirthdayApp {
         const { memories, ...settingsOnly } = this.config;
         localStorage.setItem(this.SETTINGS_KEY, JSON.stringify(settingsOnly));
 
-        // Save only USER-ADDED memories (those with base64 photos or non-default paths)
-        const defaultPhotoPaths = new Set(this.getDefaultConfig().memories.map(m => m.photo));
-        const userAdded = this.config.memories.filter(m => !defaultPhotoPaths.has(m.photo));
-        localStorage.setItem(this.MEMORIES_KEY, JSON.stringify(userAdded));
+        // Save entire memories array (including default, edited, and user-added memories)
+        localStorage.setItem(this.MEMORIES_KEY, JSON.stringify(this.config.memories));
     }
 
     getDefaultConfig() {
