@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>For Jane | Happy Birthday</title>
+    <!-- Modern Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&family=Montserrat:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Full-screen floating background particles -->
+    <div id="particle-container"></div>
+
+    <!-- Main Container: Renders as a mock mobile phone on desktop, full screen on mobile -->
+    <div class="app-container">
+        
+        <!-- TOP STATUS / NAVIGATION HEADER -->
+        <header class="app-header">
+            <span class="app-logo">For <span id="header-name">Jane</span></span>
+            <button class="settings-trigger" id="open-settings-btn" aria-label="Open Settings">
+                <svg viewBox="0 0 24 24" class="icon"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.1a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+        </header>
+
+        <!-- APP CONTENT VIEWS -->
+        <main class="app-content">
+
+            <!-- 1. SPLASH SCREEN -->
+            <section id="splash-screen" class="app-screen active">
+                <div class="splash-backdrop" style="background-image: url('assets/splash_bg.png');"></div>
+                <div class="splash-card glass-card">
+                    <div class="splash-heart-wrapper">
+                        <div class="heart-pulse">❤️</div>
+                    </div>
+                    <h1 class="splash-title">Happy Birthday<br><span class="highlight-name" id="splash-name">Jane</span></h1>
+                    <p class="splash-subtitle">A private digital celebration made with love, just for you.</p>
+                    <button class="btn btn-primary" id="enter-app-btn">
+                        <span>Begin the Journey</span>
+                        <svg viewBox="0 0 24 24" class="icon btn-icon"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                    </button>
+                </div>
+            </section>
+
+            <!-- 2. HOME DASHBOARD -->
+            <section id="dashboard-screen" class="app-screen">
+                <div class="screen-scroll-container">
+                    <div class="welcome-banner">
+                        <span class="greeting-tag">Hello, Beautiful ✨</span>
+                        <h2 class="welcome-heading">Jane's Celebration</h2>
+                    </div>
+
+                    <!-- COUNTDOWN CARD -->
+                    <div class="countdown-card glass-card" id="countdown-trigger">
+                        <h3 class="card-title-sm">Countdown to the Special Day</h3>
+                        <div class="countdown-timer">
+                            <div class="timer-segment">
+                                <span class="timer-value" id="days">00</span>
+                                <span class="timer-label">Days</span>
+                            </div>
+                            <div class="timer-colon">:</div>
+                            <div class="timer-segment">
+                                <span class="timer-value" id="hours">00</span>
+                                <span class="timer-label">Hours</span>
+                            </div>
+                            <div class="timer-colon">:</div>
+                            <div class="timer-segment">
+                                <span class="timer-value" id="minutes">00</span>
+                                <span class="timer-label">Mins</span>
+                            </div>
+                            <div class="timer-colon">:</div>
+                            <div class="timer-segment">
+                                <span class="timer-value" id="seconds">00</span>
+                                <span class="timer-label">Secs</span>
+                            </div>
+                        </div>
+                        <div class="countdown-date-info">
+                            <svg viewBox="0 0 24 24" class="icon text-icon"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                            <span id="countdown-date-str">Loading Date...</span>
+                        </div>
+                        <div class="countdown-badge" id="countdown-status-badge">Waiting...</div>
+                    </div>
+
+                    <!-- QUICK LINKS GRID -->
+                    <div class="dashboard-grid">
+                        <div class="dashboard-card glass-card" onclick="app.navigateTo('letter')">
+                            <div class="card-icon-wrapper color-pink">
+                                <svg viewBox="0 0 24 24" class="icon"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                            </div>
+                            <h4>Love Letter</h4>
+                            <p>Read a letter just for you</p>
+                        </div>
+                        <div class="dashboard-card glass-card" onclick="app.navigateTo('memories')">
+                            <div class="card-icon-wrapper color-blue">
+                                <svg viewBox="0 0 24 24" class="icon"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21,15 16,10 5,21"/></svg>
+                            </div>
+                            <h4>Our Memories</h4>
+                            <p>Moments we share together</p>
+                        </div>
+                        <div class="dashboard-card glass-card" onclick="app.navigateTo('reasons')">
+                            <div class="card-icon-wrapper color-gold">
+                                <svg viewBox="0 0 24 24" class="icon"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                            </div>
+                            <h4>Why I Love You</h4>
+                            <p>Interactive appreciation cards</p>
+                        </div>
+                        <div class="dashboard-card glass-card" onclick="app.navigateTo('gift')">
+                            <div class="card-icon-wrapper color-purple">
+                                <svg viewBox="0 0 24 24" class="icon"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>
+                            </div>
+                            <h4>Surprise Gift</h4>
+                            <p>Unlock a special surprise</p>
+                        </div>
+                    </div>
+
+                    <!-- ROMANTIC QUOTE -->
+                    <div class="quote-card glass-card">
+                        <span class="quote-mark">“</span>
+                        <p class="quote-text" id="dashboard-quote">In all the world, there is no heart for me like yours. In all the world, there is no love for you like mine.</p>
+                        <span class="quote-author">— Maya Angelou</span>
+                    </div>
+
+                    <div style="height: 60px;"></div> <!-- Spacer -->
+                </div>
+            </section>
+
+            <!-- 3. LOVE LETTER SCREEN -->
+            <section id="letter-screen" class="app-screen">
+                <div class="screen-scroll-container">
+                    <div class="section-header">
+                        <h3>A Letter For You</h3>
+                        <p>Written with all my heart</p>
+                    </div>
+
+                    <!-- Virtual Envelope System -->
+                    <div class="envelope-wrapper">
+                        <div class="envelope" id="envelope">
+                            <div class="envelope-front"></div>
+                            <div class="envelope-flap"></div>
+                            <div class="letter-paper glass-card" id="letter-paper">
+                                <div class="letter-decor">🌹</div>
+                                <div class="letter-handwritten" id="handwritten-text">
+                                    <!-- Populated dynamically via JS typewriter -->
+                                </div>
+                                <div class="letter-signature" id="letter-sig">— Yours Always ❤️</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Envelope Controls -->
+                    <div class="envelope-controls">
+                        <button class="btn btn-primary" id="open-envelope-btn">Open Letter</button>
+                        <button class="btn btn-secondary hidden" id="restart-letter-btn">Restart Letter</button>
+                    </div>
+
+                    <div style="height: 60px;"></div> <!-- Spacer -->
+                </div>
+            </section>
+
+            <!-- 4. MEMORIES GALLERY & TIMELINE -->
+            <section id="memories-screen" class="app-screen">
+                <div class="screen-scroll-container">
+                    <div class="section-header">
+                        <h3>Our Story</h3>
+                        <p>Beautiful moments we share</p>
+                    </div>
+
+                    <!-- Gallery Carousel -->
+                    <div class="gallery-container">
+                        <h4 class="sub-section-title">Photo Gallery</h4>
+                        <div class="carousel-wrapper">
+                            <div class="carousel-track" id="gallery-carousel">
+                                <!-- Populated dynamically -->
+                            </div>
+                            <div class="carousel-dots" id="carousel-dots"></div>
+                        </div>
+                    </div>
+
+                    <!-- Timeline -->
+                    <div class="timeline-container">
+                        <h4 class="sub-section-title">Our Journey</h4>
+                        <div class="timeline" id="memory-timeline">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+
+                    <div style="height: 60px;"></div> <!-- Spacer -->
+                </div>
+            </section>
+
+            <!-- 5. REASONS WHY I LOVE YOU -->
+            <section id="reasons-screen" class="app-screen">
+                <div class="screen-scroll-container">
+                    <div class="section-header">
+                        <h3>Reasons I Love You</h3>
+                        <p>Swipe or click to read through them</p>
+                    </div>
+
+                    <!-- Swipeable Card Deck -->
+                    <div class="card-deck-wrapper">
+                        <div class="deck" id="reasons-deck">
+                            <!-- Stack of reasons cards populated dynamically -->
+                        </div>
+                    </div>
+
+                    <div class="deck-controls">
+                        <button class="btn-round" id="prev-reason-btn" aria-label="Previous Reason" onclick="app.rotateDeckPrev()">
+                            <svg viewBox="0 0 24 24" class="icon"><path d="M15 18l-6-6 6-6"/></svg>
+                        </button>
+                        <span class="deck-counter" id="deck-counter">1 / 10</span>
+                        <button class="btn-round" id="next-reason-btn" aria-label="Next Reason" onclick="app.rotateDeckNext()">
+                            <svg viewBox="0 0 24 24" class="icon"><path d="M9 18l6-6-6-6"/></svg>
+                        </button>
+                    </div>
+
+                    <div style="height: 60px;"></div> <!-- Spacer -->
+                </div>
+            </section>
+
+            <!-- 6. SURPRISE GIFT -->
+            <section id="gift-screen" class="app-screen">
+                <div class="screen-scroll-container">
+                    <div class="section-header">
+                        <h3>A Special Surprise</h3>
+                        <p>Just for your eyes only</p>
+                    </div>
+
+                    <!-- Surprise Reveal Card (shown at TOP when unlocked) -->
+                    <div class="surprise-reveal-card glass-card hidden" id="surprise-reveal-card">
+                        <div class="reveal-header">✨ Unlocked ✨</div>
+                        <h4 class="reveal-title">Happy Birthday, My Love!</h4>
+                        
+                        <div class="reveal-media-placeholder">
+                            <img src="assets/couple_photo.png" alt="Our Photo" class="reveal-photo" id="reveal-couple-photo" onerror="this.src='assets/couple_memories.png'">
+                        </div>
+
+                        <p class="reveal-message" id="reveal-message-text">
+                            You unlocked your special gift! I've planned a romantic dinner date this weekend at your favorite restaurant. I can't wait to celebrate you. ❤️
+                        </p>
+
+                        <div class="reveal-coupon-code">
+                            <span class="coupon-label">TICKET CODE:</span>
+                            <span class="coupon-code">FOREVER-WITH-YOU</span>
+                        </div>
+                        
+                        <button class="btn btn-secondary" id="reset-gift-btn">Close Box</button>
+                    </div>
+
+                    <!-- Gift Box (shown when locked) -->
+                    <div class="gift-box-container" id="gift-box-container">
+                        <div class="gift-box-wrapper" id="gift-wrapper">
+                            <div class="gift-lid" id="gift-lid"></div>
+                            <div class="gift-ribbon-v"></div>
+                            <div class="gift-ribbon-h"></div>
+                            <div class="gift-main" id="gift-main">
+                                <img src="assets/gift_box.png" alt="Gift Box" class="gift-illustrative-img" id="gift-img">
+                            </div>
+                        </div>
+                        <p class="gift-instruction" id="gift-instruction-text">Tap the gift to open!</p>
+                    </div>
+
+                    <div style="height: 60px;"></div> <!-- Spacer -->
+                </div>
+            </section>
+
+        </main>
+
+        <!-- FLOATING AUDIO CONTROLLER -->
+        <div class="floating-audio-container" id="music-player-widget">
+            <button class="audio-toggle-btn" id="audio-play-btn" aria-label="Toggle Background Music">
+                <svg viewBox="0 0 24 24" class="icon icon-music" id="music-svg-icon">
+                    <path class="play-path" d="M9 18V5l12-2v13M9 9l12-2"/>
+                    <circle cx="6" cy="18" r="3"/>
+                    <circle cx="18" cy="16" r="3"/>
+                </svg>
+                <div class="music-visualizer" id="visualizer-bars">
+                    <div class="bar"></div>
+                    <div class="bar"></div>
+                    <div class="bar"></div>
+                </div>
+            </button>
+            <div class="mini-player glass-card hidden" id="mini-player-panel">
+                <span class="song-title" id="current-track-name">Romantic Melody</span>
+                <div class="player-controls">
+                    <button class="btn-icon-only" id="mini-play-btn">
+                        <svg viewBox="0 0 24 24" class="icon" id="mini-play-icon"><path d="M8 5v14l11-7z"/></svg>
+                    </button>
+                    <input type="range" class="volume-slider" id="volume-slider" min="0" max="1" step="0.05" value="0.5" aria-label="Volume">
+                </div>
+            </div>
+        </div>
+
+        <!-- BOTTOM TAB BAR NAVIGATION -->
+        <nav class="bottom-nav">
+            <button class="nav-item active" data-target="dashboard">
+                <svg viewBox="0 0 24 24" class="icon"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                <span>Home</span>
+            </button>
+            <button class="nav-item" data-target="letter">
+                <svg viewBox="0 0 24 24" class="icon"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                <span>Letter</span>
+            </button>
+            <button class="nav-item" data-target="memories">
+                <svg viewBox="0 0 24 24" class="icon"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21,15 16,10 5,21"/></svg>
+                <span>Memories</span>
+            </button>
+            <button class="nav-item" data-target="reasons">
+                <svg viewBox="0 0 24 24" class="icon"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.75 0L12 5.67l-1.09-1.06a5.5 5.5 0 0 0-7.75 7.75l1.09 1.06L12 21.23l7.75-7.75 1.09-1.06a5.5 5.5 0 0 0 0-7.75z"/></svg>
+                <span>Reasons</span>
+            </button>
+            <button class="nav-item" data-target="gift">
+                <svg viewBox="0 0 24 24" class="icon"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>
+                <span>Gift</span>
+            </button>
+        </nav>
+
+        <!-- SETTINGS MODAL / CONFIGURATION DASHBOARD (PERSISTED LOCALLY) -->
+        <div class="modal-overlay hidden" id="settings-modal">
+            <div class="modal-content glass-card">
+                <div class="modal-header">
+                    <h3>App Settings</h3>
+                    <button class="close-btn" id="close-settings-btn" aria-label="Close Settings">
+                        <svg viewBox="0 0 24 24" class="icon"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p class="modal-desc">Customize Jane's app content. Changes are saved in your browser locally.</p>
+                    
+                    <div class="form-group">
+                        <label for="cfg-name">Her Name</label>
+                        <input type="text" id="cfg-name" value="Jane">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="cfg-date">Birthday Date & Time</label>
+                        <input type="datetime-local" id="cfg-date">
+                        <span class="field-hint">Pick a future date to show the active countdown, or a past date to trigger the birthday celebration immediately!</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="cfg-letter">Love Letter Content</label>
+                        <textarea id="cfg-letter" rows="5"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="cfg-gift-msg">Surprise Reveal Message</label>
+                        <textarea id="cfg-gift-msg" rows="3"></textarea>
+                    </div>
+
+                    <!-- MEMORIES MANAGEMENT SECTION -->
+                    <div class="settings-divider"></div>
+                    <div class="settings-sub-header">Manage Memories</div>
+                    
+                    <!-- Memories list container -->
+                    <div class="memories-manager-list" id="memories-mgr-list">
+                        <!-- Populated dynamically via JS -->
+                    </div>
+                    
+                    <!-- Add new memory form -->
+                    <div class="add-memory-form">
+                        <h5>Add New Memory</h5>
+                        <div class="form-group-sub">
+                            <label for="new-mem-date">Date</label>
+                            <input type="text" id="new-mem-date" placeholder="e.g. October 12, 2024">
+                        </div>
+                        <div class="form-group-sub">
+                            <label for="new-mem-title">Title</label>
+                            <input type="text" id="new-mem-title" placeholder="e.g. Our First Coffee Date">
+                        </div>
+                        <div class="form-group-sub">
+                            <label for="new-mem-desc">Story/Description</label>
+                            <textarea id="new-mem-desc" rows="2" placeholder="Tell the story of this moment..."></textarea>
+                        </div>
+                        <div class="form-group-sub">
+                            <label for="new-mem-file">Choose Photo</label>
+                            <input type="file" id="new-mem-file" accept="image/*">
+                        </div>
+                        <button type="button" class="btn btn-secondary" id="add-mem-btn" style="margin-top: 10px; width: 100%; font-size: 12px; padding: 10px;">Add Memory</button>
+                    </div>
+
+                    <div class="form-group">
+                        <button class="btn btn-primary" id="save-settings-btn">Save Changes</button>
+                        <button class="btn btn-link" id="reset-defaults-btn">Reset to Default Settings</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Hidden audio element for background music -->
+    <audio id="bg-music" loop>
+        <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
+    </audio>
+
+    <!-- Canvas for Confetti Burst animation -->
+    <canvas id="confetti-canvas"></canvas>
+
+    <!-- Main Application script -->
+    <script src="app.js"></script>
+</body>
+</html>
