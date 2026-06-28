@@ -375,6 +375,8 @@ class BirthdayApp {
         // Splash Action
         this.dom.enterAppBtn.addEventListener('click', () => {
             this.navigateTo('dashboard');
+            // Auto-play music on enter (user gesture allows audio playback)
+            this.playMusic();
         });
 
         // Tab Navigation
