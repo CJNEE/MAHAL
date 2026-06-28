@@ -1,10 +1,10 @@
 module.exports = async function handler(req, res) {
-    const url = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL;
-    const token = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN;
+    const supabaseUrl = process.env.SUPABASE_URL;
+    const supabaseKey = process.env.SUPABASE_ANON_KEY;
 
-    if (!url || !token) {
+    if (!supabaseUrl || !supabaseKey) {
         return res.status(500).json({ 
-            error: "Vercel KV or Upstash Redis is not configured. Please connect the database to your project in the Vercel dashboard." 
+            error: "Supabase is not configured. Add SUPABASE_URL and SUPABASE_ANON_KEY to your Vercel environment variables." 
         });
     }
 
@@ -14,52 +14,57 @@ module.exports = async function handler(req, res) {
     }
 
     const key = `forjane_${type}`;
+    const restUrl = `${supabaseUrl}/rest/v1/config`;
+    const headers = {
+        'apikey': supabaseKey,
+        'Authorization': `Bearer ${supabaseKey}`,
+        'Content-Type': 'application/json'
+    };
 
     try {
         if (req.method === 'GET') {
-            const response = await fetch(url, {
-                method: 'POST',
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(['GET', key])
+            const response = await fetch(`${restUrl}?key=eq.${key}&select=value`, {
+                method: 'GET',
+                headers
             });
             const data = await response.json();
-            if (data.error) {
-                return res.status(500).json({ error: data.error });
+            if (!response.ok) {
+                return res.status(500).json({ error: data.message || JSON.stringify(data) });
             }
-            const value = data.result ? JSON.parse(data.result) : null;
-            return res.status(200).json(value);
+            // data is an array of rows; return the value or null
+            if (Array.isArray(data) && data.length > 0) {
+                return res.status(200).json(data[0].value);
+            }
+            return res.status(200).json(null);
+
         } else if (req.method === 'POST') {
             const body = req.body;
-            const response = await fetch(url, {
+            // Upsert: insert or update on conflict
+            const response = await fetch(`${restUrl}`, {
                 method: 'POST',
                 headers: {
-                    Authorization: `Bearer ${token}`,
-                    'Content-Type': 'application/json'
+                    ...headers,
+                    'Prefer': 'resolution=merge-duplicates'
                 },
-                body: JSON.stringify(['SET', key, JSON.stringify(body)])
+                body: JSON.stringify({ key: key, value: body })
             });
-            const data = await response.json();
-            if (data.error) {
-                return res.status(500).json({ error: data.error });
+            if (!response.ok) {
+                const errData = await response.json().catch(() => ({}));
+                return res.status(500).json({ error: errData.message || response.statusText });
             }
-            return res.status(200).json({ success: true, result: data.result });
+            return res.status(200).json({ success: true });
+
         } else if (req.method === 'DELETE') {
-            const response = await fetch(url, {
-                method: 'POST',
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(['DEL', key])
+            const response = await fetch(`${restUrl}?key=eq.${key}`, {
+                method: 'DELETE',
+                headers
             });
-            const data = await response.json();
-            if (data.error) {
-                return res.status(500).json({ error: data.error });
+            if (!response.ok) {
+                const errData = await response.json().catch(() => ({}));
+                return res.status(500).json({ error: errData.message || response.statusText });
             }
-            return res.status(200).json({ success: true, result: data.result });
+            return res.status(200).json({ success: true });
+
         } else {
             res.setHeader('Allow', ['GET', 'POST', 'DELETE']);
             return res.status(405).json({ error: `Method ${req.method} Not Allowed` });
