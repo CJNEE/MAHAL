@@ -125,7 +125,7 @@ class BirthdayApp {
 
         // Save to cloud database (Vercel KV) in the background
         try {
-            await Promise.all([
+            const [settingsRes, memoriesRes] = await Promise.all([
                 fetch('/api/db?type=settings', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -137,6 +137,16 @@ class BirthdayApp {
                     body: JSON.stringify(this.config.memories)
                 })
             ]);
+
+            if (!settingsRes.ok) {
+                const errData = await settingsRes.json().catch(() => ({}));
+                throw new Error(`Settings save failed: ${errData.error || settingsRes.statusText}`);
+            }
+            if (!memoriesRes.ok) {
+                const errData = await memoriesRes.json().catch(() => ({}));
+                throw new Error(`Memories save failed: ${errData.error || memoriesRes.statusText}`);
+            }
+            console.log("Configuration synced successfully to cloud database.");
         } catch (e) {
             console.error("Failed to save configuration to cloud database:", e);
         }
@@ -513,13 +523,33 @@ class BirthdayApp {
         this.dom.settingsModal.classList.add('hidden');
     }
 
-    saveSettingsFromForm() {
+    async saveSettingsFromForm() {
         this.config.name = this.dom.cfgName.value;
         this.config.birthdayDate = this.dom.cfgDate.value;
         this.config.letterText = this.dom.cfgLetter.value;
         this.config.giftMessage = this.dom.cfgGiftMsg.value;
         
-        this.saveConfig();
+        // Auto-save memory form if they started typing but forgot to click Add/Save
+        const dateVal = this.dom.newMemDate.value.trim();
+        const titleVal = this.dom.newMemTitle.value.trim();
+        const descVal = this.dom.newMemDesc.value.trim();
+        const fileInput = this.dom.newMemFile;
+        
+        if (titleVal || dateVal || descVal || (fileInput.files && fileInput.files[0])) {
+            let saved = false;
+            if (this.editingMemoryIndex !== null) {
+                saved = await this.handleSaveEditMemory(this.editingMemoryIndex);
+            } else {
+                saved = await this.handleAddNewMemory();
+            }
+            if (!saved) {
+                // Keep modal open so they can correct validation errors
+                return;
+            }
+        } else {
+            await this.saveConfig();
+        }
+
         this.populateStaticContent();
         
         // Restart engines
@@ -1357,34 +1387,38 @@ class BirthdayApp {
     }
 
     handleSaveEditMemory(index) {
-        const dateVal = this.dom.newMemDate.value.trim();
-        const titleVal = this.dom.newMemTitle.value.trim();
-        const descVal = this.dom.newMemDesc.value.trim();
-        const fileInput = this.dom.newMemFile;
+        return new Promise((resolve) => {
+            const dateVal = this.dom.newMemDate.value.trim();
+            const titleVal = this.dom.newMemTitle.value.trim();
+            const descVal = this.dom.newMemDesc.value.trim();
+            const fileInput = this.dom.newMemFile;
 
-        if (!dateVal || !titleVal || !descVal) {
-            alert('Please fill in Date, Title, and Description.');
-            return;
-        }
+            if (!dateVal || !titleVal || !descVal) {
+                alert('Please fill in Date, Title, and Description.');
+                resolve(false);
+                return;
+            }
 
-        const saveEdit = (photoUrl) => {
-            this.config.memories[index] = {
-                photo: photoUrl || this.config.memories[index].photo,
-                date: dateVal,
-                title: titleVal,
-                desc: descVal
+            const saveEdit = async (photoUrl) => {
+                this.config.memories[index] = {
+                    photo: photoUrl || this.config.memories[index].photo,
+                    date: dateVal,
+                    title: titleVal,
+                    desc: descVal
+                };
+                await this.saveConfig();
+                this.renderMemories();
+                this.renderMemoriesManager();
+                this.resetMemoryForm();
+                resolve(true);
             };
-            this.saveConfig();
-            this.renderMemories();
-            this.renderMemoriesManager();
-            this.resetMemoryForm();
-        };
 
-        if (fileInput.files && fileInput.files[0]) {
-            this.compressAndSaveImage(fileInput.files[0], saveEdit);
-        } else {
-            saveEdit(null);
-        }
+            if (fileInput.files && fileInput.files[0]) {
+                this.compressAndSaveImage(fileInput.files[0], saveEdit);
+            } else {
+                saveEdit(null);
+            }
+        });
     }
 
     resetMemoryForm() {
@@ -1407,34 +1441,38 @@ class BirthdayApp {
     }
 
     handleAddNewMemory() {
-        const dateVal = this.dom.newMemDate.value.trim();
-        const titleVal = this.dom.newMemTitle.value.trim();
-        const descVal = this.dom.newMemDesc.value.trim();
-        const fileInput = this.dom.newMemFile;
+        return new Promise((resolve) => {
+            const dateVal = this.dom.newMemDate.value.trim();
+            const titleVal = this.dom.newMemTitle.value.trim();
+            const descVal = this.dom.newMemDesc.value.trim();
+            const fileInput = this.dom.newMemFile;
 
-        if (!dateVal || !titleVal || !descVal) {
-            alert('Please fill in the Date, Title, and Description fields.');
-            return;
-        }
+            if (!dateVal || !titleVal || !descVal) {
+                alert('Please fill in the Date, Title, and Description fields.');
+                resolve(false);
+                return;
+            }
 
-        const addMemoryObj = (photoUrl) => {
-            this.config.memories.push({
-                photo: photoUrl || 'assets/couple_memories.png',
-                date: dateVal,
-                title: titleVal,
-                desc: descVal
-            });
-            this.saveConfig();
-            this.renderMemories();
-            this.renderMemoriesManager();
-            this.resetMemoryForm();
-        };
+            const addMemoryObj = async (photoUrl) => {
+                this.config.memories.push({
+                    photo: photoUrl || 'assets/couple_memories.png',
+                    date: dateVal,
+                    title: titleVal,
+                    desc: descVal
+                });
+                await this.saveConfig();
+                this.renderMemories();
+                this.renderMemoriesManager();
+                this.resetMemoryForm();
+                resolve(true);
+            };
 
-        if (fileInput.files && fileInput.files[0]) {
-            this.compressAndSaveImage(fileInput.files[0], addMemoryObj);
-        } else {
-            addMemoryObj(null);
-        }
+            if (fileInput.files && fileInput.files[0]) {
+                this.compressAndSaveImage(fileInput.files[0], addMemoryObj);
+            } else {
+                addMemoryObj(null);
+            }
+        });
     }
 
     compressAndSaveImage(file, callback) {

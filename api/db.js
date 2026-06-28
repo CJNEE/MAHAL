@@ -26,6 +26,9 @@ module.exports = async function handler(req, res) {
                 body: JSON.stringify(['GET', key])
             });
             const data = await response.json();
+            if (data.error) {
+                return res.status(500).json({ error: data.error });
+            }
             const value = data.result ? JSON.parse(data.result) : null;
             return res.status(200).json(value);
         } else if (req.method === 'POST') {
@@ -39,6 +42,9 @@ module.exports = async function handler(req, res) {
                 body: JSON.stringify(['SET', key, JSON.stringify(body)])
             });
             const data = await response.json();
+            if (data.error) {
+                return res.status(500).json({ error: data.error });
+            }
             return res.status(200).json({ success: true, result: data.result });
         } else if (req.method === 'DELETE') {
             const response = await fetch(url, {
@@ -50,6 +56,9 @@ module.exports = async function handler(req, res) {
                 body: JSON.stringify(['DEL', key])
             });
             const data = await response.json();
+            if (data.error) {
+                return res.status(500).json({ error: data.error });
+            }
             return res.status(200).json({ success: true, result: data.result });
         } else {
             res.setHeader('Allow', ['GET', 'POST', 'DELETE']);
