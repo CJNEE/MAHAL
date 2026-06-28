@@ -1,10 +1,10 @@
 module.exports = async function handler(req, res) {
-    const url = process.env.KV_REST_API_URL;
-    const token = process.env.KV_REST_API_TOKEN;
+    const url = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL;
+    const token = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN;
 
     if (!url || !token) {
         return res.status(500).json({ 
-            error: "Vercel KV is not configured. Please link a KV database to your project in the Vercel dashboard." 
+            error: "Vercel KV or Upstash Redis is not configured. Please connect the database to your project in the Vercel dashboard." 
         });
     }
 
